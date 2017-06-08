@@ -1,4 +1,5 @@
-(ns recursion)
+(ns recursion
+  (:require [clojure.set :as set]))
 
 (defn product [coll]
   (if (empty? coll)
@@ -167,10 +168,24 @@
       (seq-merge (merge-sort x) (merge-sort y)))))
 
 (defn split-into-monotonics [a-seq]
-  [:-])
+  (if (empty? a-seq)
+    a-seq
+    (let [monotonic? (fn [a-seq] (or (apply >= a-seq) (apply <= a-seq)))
+          seq-inits (rest (inits a-seq))
+          longest-monotonic (last (my-take-while monotonic? seq-inits))
+          next-seq (drop (count longest-monotonic) a-seq)]
+      (cons longest-monotonic (split-into-monotonics next-seq)))))
 
 (defn permutations [a-set]
-  [:-])
+  (if (empty? a-set)
+    '(())
+    ; Note: Mapcat is short for (apply concat (map fn seq))
+    (mapcat
+      (fn [x]
+        ; Create permutations for each rotation by repeating the first
+        ; number and rotating the rest recursively
+        (map cons (repeat (first x)) (permutations (rest x))))
+      (rotations a-set))))
 
 (defn powerset [a-set]
   [:-])
